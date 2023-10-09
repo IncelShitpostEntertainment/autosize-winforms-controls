@@ -1,0 +1,50 @@
+/**********************************************************
+ * Form1_Load and Form1_Resize are event functions        *
+ * added automatically by the designer in Visual Studio.  *
+ * You gotta add these two events too to work predictably *
+**********************************************************/
+
+private void Form1_Load(object sender, EventArgs e)
+{
+    StoreInitialControlRectangles(this.Controls);
+}
+
+private void Form1_Resize(object sender, EventArgs e)
+{
+    ResizeAllControls(this.Controls);
+}
+
+private void StoreInitialControlRectangles(Control.ControlCollection controls)
+{
+    foreach (Control control in controls)
+    {
+        controlRectangles[control] = new Rectangle(control.Location, control.Size);
+        if (control.HasChildren)
+        {
+            StoreInitialControlRectangles(control.Controls);
+        }
+    }
+}
+
+private void ResizeAllControls(Control.ControlCollection controls)
+{
+    float xRatio = (float)this.Width / (float)defaultFormSize.Width;
+    float yRatio = (float)this.Height / (float)defaultFormSize.Height;
+    foreach (Control control in controls)
+    {
+        Rectangle initialRect;
+        if (controlRectangles.TryGetValue(control, out initialRect))
+        {
+            int newX = (int)(initialRect.X * xRatio);
+            int newY = (int)(initialRect.Y * yRatio);
+            int newWidth = (int)(initialRect.Width * xRatio);
+            int newHeight = (int)(initialRect.Height * yRatio);
+            control.Location = new Point(newX, newY);
+            control.Size = new Size(newWidth, newHeight);
+        }
+        if (control.HasChildren)
+        {
+            ResizeAllControls(control.Controls);
+        }
+    }
+}
